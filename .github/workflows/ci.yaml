@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - "*"
+  release:
+    types: [published]
 env:
   CONTAINER_REPOSITORY: quay.io/${{secrets.JOE_USERNAME_SECRET}} # PUT YOUR OWN USERNAME HERE
   CONTAINER_IMAGE: alm-workshop-extern-01-12-25 # fixed this to the repo name
