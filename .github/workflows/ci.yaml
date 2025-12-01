@@ -7,7 +7,7 @@ on:
       - "*"
 env:
   CONTAINER_REPOSITORY: quay.io/${{secrets.JOE_USERNAME_SECRET}} # PUT YOUR OWN USERNAME HERE
-  CONTAINER_IMAGE: alm-workshop
+  CONTAINER_IMAGE: alm-workshop-extern-01-12-25
   GOLANG_VERSION: 1.23
 
 jobs:
