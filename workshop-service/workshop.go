@@ -15,6 +15,8 @@ func checkScoreRange(score int) bool {
 
 var defaultScore int = 5 // Fallback default score
 
+var workshop *Workshop
+
 func init() {
 	// Read the environment variable named SWEATER_SCORE
 	scoreStr := os.Getenv("SWEATER_SCORE")
@@ -25,14 +27,24 @@ func init() {
 			if checkScoreRange(score) {
 				defaultScore = score
 				fmt.Printf("Default SweaterScore set from environment variable to: %d\n", defaultScore)
-				return
+			} else {
+				fmt.Printf("Environment variable SWEATER_SCORE (%s) is out of range (1-10). Using fallback default of %d.\n", scoreStr, defaultScore)
 			}
-			fmt.Printf("Environment variable SWEATER_SCORE (%s) is out of range (1-10). Using fallback default of %d.\n", scoreStr, defaultScore)
 		} else {
 			fmt.Printf("Environment variable SWEATER_SCORE ('%s') is not a valid number. Using fallback default of %d.\n", scoreStr, defaultScore)
 		}
 	} else {
 		fmt.Printf("SWEATER_SCORE environment variable not set. Using default of %d.\n", defaultScore)
+	}
+
+	// FIX: Initialize the 'workshop' struct AFTER 'defaultScore' has been set
+	// based on the environment variable.
+	workshop = &Workshop{
+		Name:         "ALM Workshop",
+		Date:         "1/12/2025",
+		Presentator:  "AE Consultants",
+		Participants: []string{"John Doe", "Mary Little Lamb", "Chuck Norris", "Joe Ayoub"},
+		SweaterScore: defaultScore,
 	}
 }
 
@@ -42,14 +54,6 @@ type Workshop struct {
 	Presentator  string   `json:"presentator"`
 	Participants []string `json:"participants"`
 	SweaterScore int `json:"sweaterscore"`
-}
-
-var workshop = Workshop{
-	Name:         "ALM Workshop",
-	Date:         "1/12/2025",
-	Presentator:  "AE Consultants",
-	Participants: []string{"John Doe", "Mary Little Lamb", "Chuck Norris", "Joe Ayoub"},
-	SweaterScore: defaultScore,
 }
 
 func getWorkshopHandler(w http.ResponseWriter, r *http.Request) {
@@ -78,7 +82,7 @@ func postWorkshopHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the workshop details
-	workshop = newWorkshop
+	*workshop = newWorkshop
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
