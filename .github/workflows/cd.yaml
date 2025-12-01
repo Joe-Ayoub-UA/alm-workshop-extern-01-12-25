@@ -24,6 +24,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Extract Tag for Deployment
+        id: meta
+        run: |
+          # If triggered by a Release, use the release tag (e.g., v1.1.0)
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            echo "TAG=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          # Otherwise, use the short commit SHA for tracking
+          else
+            echo "TAG=${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Login OpenShift
         uses: redhat-actions/oc-login@v1
         with:
@@ -33,7 +44,7 @@ jobs:
 
       - name: Apply Openshift YAML
         run: |
-          FULL_IMAGE_NAME="${{ env.CONTAINER_REPOSITORY }}/${{ env.CONTAINER_IMAGE_NAME }}:${{ steps.meta.outputs.TAG }}"
+          FULL_IMAGE_NAME="${{ env.CONTAINER_REPOSITORY }}/${{ env.CONTAINER_IMAGE }}:${{ steps.meta.outputs.TAG }}"
 
           echo "Deploying image: $FULL_IMAGE_NAME"
 
