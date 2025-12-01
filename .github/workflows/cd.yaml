@@ -27,10 +27,8 @@ jobs:
       - name: Extract Tag for Deployment
         id: meta
         run: |
-          # If triggered by a Release, use the release tag (e.g., v1.1.0)
           if [[ "${{ github.event_name }}" == "release" ]]; then
             echo "TAG=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
-          # Otherwise, use the short commit SHA for tracking
           else
             echo "TAG=${{ github.sha }}" >> $GITHUB_OUTPUT
           fi
@@ -50,11 +48,11 @@ jobs:
 
           # 1. Option A: Update an existing OpenShift DeploymentConfig (DC)
           # Assuming your DC is named 'my-golang-app' and the container name is 'app'
-          oc set image dc/my-golang-app app=$FULL_IMAGE_NAME -n ${{ env.OCP_NAMESPACE }}
+          oc set image deployment/dev-alm-workshop-2025-app workshop=$FULL_IMAGE_NAME -n ${{ env.OCP_NAMESPACE }}
 
           # 2. Option B: Update an existing Kubernetes Deployment (K8s standard)
           # oc set image deployment/my-golang-app app=$FULL_IMAGE_NAME -n ${{ env.OCP_NAMESPACE }}
 
           # 3. Wait for the rollout to complete (highly recommended)
           echo "Waiting for rollout to finish..."
-          oc rollout status dc/my-golang-app --timeout=5m -n ${{ env.OCP_NAMESPACE }}
+          oc rollout status deployment/dev-alm-workshop-2025-app --timeout=5m -n ${{ env.OCP_NAMESPACE }}
