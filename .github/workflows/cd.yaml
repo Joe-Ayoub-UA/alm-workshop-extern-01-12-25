@@ -11,6 +11,9 @@ env:
   CONTAINER_REPOSITORY: quay.io/${{secrets.JOE_USERNAME_SECRET}} # PUT YOUR OWN USERNAME HERE
   CONTAINER_IMAGE: alm-workshop-extern-01-12-25 # fixed this to the repo name
   GOLANG_VERSION: 1.23
+  OCP_SERVER_URL: https://api.rm1.0a51.p1.openshiftapps.com:6443
+  OCP_TOKEN: ${{secrets.OCP_TOKEN}}
+  OCP_NAMESPACE: dev-alm-workshop-2025-app
 
 jobs:
   deploy:
