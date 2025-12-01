@@ -24,7 +24,7 @@ spec:
       containers:
         - name: workshop
           # TODO: Update image to your image
-          image: <<TODO>>
+          image: quay.io/${{secrets.JOE_USERNAME_SECRET}}/alm-workshop-extern-01-12-25
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

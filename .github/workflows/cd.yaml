@@ -1,0 +1,46 @@
+name: Release Application
+
+on:
+  # LET THE PIPELINE TRIGGER ON A PUSH TO ALL BRANCHES
+  push:
+    branches:
+      - "*"
+  release:
+    types: [published]
+env:
+  CONTAINER_REPOSITORY: quay.io/${{secrets.JOE_USERNAME_SECRET}} # PUT YOUR OWN USERNAME HERE
+  CONTAINER_IMAGE: alm-workshop-extern-01-12-25 # fixed this to the repo name
+  GOLANG_VERSION: 1.23
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main' || github.event_name == 'release'
+    environment: development
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Login OpenShift
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ env.OCP_SERVER_URL }}
+          openshift_token: ${{ env.OCP_TOKEN }}
+          namespace: ${{ env.OCP_NAMESPACE }}
+
+      - name: Apply Openshift YAML
+        run: |
+          FULL_IMAGE_NAME="${{ env.CONTAINER_REPOSITORY }}/${{ env.CONTAINER_IMAGE_NAME }}:${{ steps.meta.outputs.TAG }}"
+
+          echo "Deploying image: $FULL_IMAGE_NAME"
+
+          # 1. Option A: Update an existing OpenShift DeploymentConfig (DC)
+          # Assuming your DC is named 'my-golang-app' and the container name is 'app'
+          oc set image dc/my-golang-app app=$FULL_IMAGE_NAME -n ${{ env.OCP_NAMESPACE }}
+
+          # 2. Option B: Update an existing Kubernetes Deployment (K8s standard)
+          # oc set image deployment/my-golang-app app=$FULL_IMAGE_NAME -n ${{ env.OCP_NAMESPACE }}
+
+          # 3. Wait for the rollout to complete (highly recommended)
+          echo "Waiting for rollout to finish..."
+          oc rollout status dc/my-golang-app --timeout=5m -n ${{ env.OCP_NAMESPACE }}
